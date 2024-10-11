@@ -38,10 +38,10 @@ class DataService {
    Future<void> addUserList({
     required String name,
     required String age,
-    required String imageFile,
+    required File imageFile,
    })async{
     try {
-      String downloadURL = await uploadImage(File(imageFile));
+      String downloadURL = await uploadImage(imageFile);
       DataModel user = DataModel(
         name: name,
         age: age,

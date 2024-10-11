@@ -94,7 +94,7 @@ class HomeController extends ChangeNotifier {
   Future<void> addUsersCollections(
       {required String name,
       required String age,
-      required String imageFile}) async {
+      required File imageFile}) async {
     try {
       await dataService.addUserList(name: name, age: age, imageFile: imageFile);
       refreshUsers();

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:totalx/controller/home_controller.dart';
+import 'package:totalx/service/auth_service.dart';
+import 'package:totalx/view/widgets/floating_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController ageController = TextEditingController();
   bool isLoadingMore = false;
+  final  ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
               padding: EdgeInsets.only(right: 10),
               child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  AuthService().signOut();
+                },
                 child: Icon(Icons.logout, color: Colors.white),
               ))
         ],
@@ -80,11 +86,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           notification is ScrollEndNotification && 
                           notification.metrics.extentAfter == 0 && !homeController.isLoading && homeController.hasMore
                         ){
-                          homeController.loadMore();
+                          _loadMoreLists();
                         }
                         return false;
                       },child: ListView.builder(
-                        // controller:,
+                        controller:_scrollController,
                         itemCount: homeController.filteredUsers.length + (isLoadingMore ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index == homeController.filteredUsers.length) {
@@ -111,8 +117,36 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ]
         )
-      )
+      ),
+      floatingActionButton: FloatingWidget(
+        ageController: ageController,
+        nameController: nameController,
+      ),
     );
-  }          
+
+  } 
+
+
+
+  Future<void> _loadMoreLists()async{
+    final homeController = Provider.of<HomeController>(context,listen: false);
+    if(!homeController.isLoadingMore && homeController.hasMore){
+      await homeController.loadMore();
+    }
+  }
+
+    void _scrollingListen(){
+      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent){
+        _loadMoreLists();
+      }
+    }
+
+   @override
+   void dispose() {
+    // TODO: implement dispose
+    _scrollController.removeListener(_scrollingListen);
+    _scrollController.dispose();
+    super.dispose();
+  }       
 }
     
