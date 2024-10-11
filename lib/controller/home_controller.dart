@@ -33,7 +33,7 @@ class HomeController extends ChangeNotifier{
     isLoading = true;
     try{
       final users = dataService.getUsers(
-        lastDoc: isLoadingMore ? lastGoc : null,
+        lastDocument: isLoadingMore ? lastGoc : null,
         pageSize: pageSize
       );
       users.listen((snapshot) {
@@ -84,5 +84,39 @@ class HomeController extends ChangeNotifier{
   }
 
 
-  
-}
+  void searchUsers(String query){
+  if(query.isEmpty){
+    filteredUsers = List.from(allUsers);
+
+  }else{
+    filteredUsers = allUsers.where((user) =>
+      user.name!.toLowerCase().contains(query.toLowerCase())).toList();
+    }
+    notifyListeners();
+  }
+
+
+  Future<void> addUsersCollections({
+    required String name,
+    required String age,
+    required String imageFile
+  })async{
+    try{
+      await dataService.addUserList(name: name, age: age, imageFile: imageFile);
+      refreshUsers();
+    }catch(e){
+      log('Error adding user:$e');
+    }
+  }
+
+  Future<void>deleteData()async{
+  try{
+    await dataService.deteleData();
+    refreshUsers();
+    notifyListeners();
+  }catch(e){
+    log('Error deleting data:$e');
+  }
+  }
+
+  }

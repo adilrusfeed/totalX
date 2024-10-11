@@ -52,5 +52,14 @@ class DataService {
       throw Exception('Error adding user: $e');
     }
    }
+
+   Future<void>deteleData()async{
+ try{
+  await firestore.collection('users_collection').doc().delete();
+
+ }catch(e){
+  throw Exception('Error deleting data: $e');
+ }
+ }
    
 }
