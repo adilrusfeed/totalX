@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "6412199183",
+    "firebase_url": "https://totalx-cb768-default-rtdb.firebaseio.com",
+    "project_id": "totalx-cb768",
+    "storage_bucket": "totalx-cb768.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:6412199183:android:23e67bbc50e71fde44ca7a",
+        "android_client_info": {
+          "package_name": "com.example.totalx"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6eQD5Jx0Ga9trln8T-gV85h94RJAz3sI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
