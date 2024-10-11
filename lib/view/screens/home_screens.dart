@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -52,6 +53,13 @@ class HomeScreen extends StatelessWidget {
                 ),
                 ),
                 
+                SizedBox(height: 20),
+                Text('Users Lists',style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
+                  color: Colors.grey[500])),
+                  SizedBox(height: 10),
+                  Expanded(child: Consumer(builder: builder))
           ],
         ),
       ),
