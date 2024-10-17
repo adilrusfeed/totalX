@@ -1,11 +1,13 @@
 
 
 class DataModel {
+  String? uid;
   String? name;
-  String? age;
+  int? age;
   String? image;
 
   DataModel({
+    this.uid,
     this.name,
     this.age,
     this.image
@@ -13,6 +15,7 @@ class DataModel {
 
   factory DataModel.fromJson(Map<String,dynamic>json){
     return DataModel(
+
       name: json['name'],
       age: json['age'],
       image: json['image']

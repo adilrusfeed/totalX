@@ -1,140 +1,160 @@
-
-import 'dart:io';
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:totalx/controller/home_controller.dart';
+import 'package:totalx/model/data_model.dart';
 
-class AddDialogBox extends StatelessWidget {
-  const AddDialogBox(
-      {super.key,
-      required this.ageController,
-      required this.nameController,
-      required this.homeProvid});
+class AddUserWidget extends StatefulWidget {
+  const AddUserWidget({super.key});
 
-  final DataController homeProvid;
-  final TextEditingController nameController;
-  final TextEditingController ageController;
+  @override
+  _AddUserWidgetState createState() => _AddUserWidgetState();
+}
+
+class _AddUserWidgetState extends State<AddUserWidget> {
+  final formKey = GlobalKey<FormState>();
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _ageFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _nameFocusNode.dispose();
+    _ageFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        'Add User',
-        style: GoogleFonts.montserrat(),
-      ),
-      actions: [
-        Center(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: homeProvid.selectedImage != null
-                    ? FileImage(File(homeProvid.selectedImage?.path ?? ''))
-                    : AssetImage('assets/person.png') as ImageProvider,
+    final provider = Provider.of<UserController>(context, listen: false);
+    return Form(
+      key: formKey,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Consumer<UserController>(
+              builder: (context, value, child) => GestureDetector(
+                onTap: () => value.pickImageFromGallery(),
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: value.pickedImage != null
+                      ? FileImage(value.pickedImage!)
+                      : null,
+                  child: value.pickedImage == null
+                      ? const Icon(Icons.person)
+                      : null,
+                ),
               ),
-              InkWell(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Select Image'),
-                        actions: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  homeProvid.pickImage(ImageSource.gallery);
-                                },
-                                child: Icon(Icons.image_outlined),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  homeProvid.pickImage(ImageSource.camera);
-                                },
-                                child: Icon(Icons.camera_alt_outlined),
-                              )
-                            ],
-                          )
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                  height: 35,
-                  width: 80,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.4),
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(200),
-                          bottomRight: Radius.circular(200))),
-                  child: Center(
-                    child: Icon(Icons.camera_alt_outlined, color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Add A New User',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              focusNode: _nameFocusNode,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "Please enter Name";
+                }
+                return null;
+              },
+              controller: provider.nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).requestFocus(_ageFocusNode);
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              focusNode: _ageFocusNode,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "Please enter Age";
+                }
+                return null;
+              },
+              controller: provider.ageController,
+              decoration: const InputDecoration(
+                labelText: 'Age',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).unfocus();
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 236, 235, 235),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
                   ),
                 ),
-              )
-            ],
-          ),
-        ),
-        SizedBox(height: 20),
-        TextField(
-          controller: nameController,
-          decoration: InputDecoration(
-              hintText: "Name",
-              hintStyle: GoogleFonts.montserrat(),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
-        ),
-        SizedBox(height: 10),
-        TextField(
-          controller: ageController,
-          decoration: InputDecoration(
-              hintText: "Age",
-              hintStyle: GoogleFonts.montserrat(),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
-        ),
-        SizedBox(height: 25),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Cancel", style: TextStyle(color: Colors.red))),
-            ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.amber)),
-              onPressed: () {
-                if (homeProvid.selectedImage == null) {
-                  return;
-                // if (homeProvid.selectedImage == null &&
-                //         nameController.text.isEmpty ||
-                //     ageController.text.isEmpty) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //       SnackBar(content: Text("Please fill all fields")));
-                } else {
-                  homeProvid.addUsersCollections(
-                      name: nameController.text,
-                      age: ageController.text,
-                      imageFile: homeProvid.selectedImage!
-                      );
-                  nameController.clear();
-                  ageController.clear();
-                  homeProvid.selectedImage == null;
-                }
-              },
-              child: Text("Save", style: TextStyle(color: Colors.white)),
-            )
+                const SizedBox(
+                  width: 10,
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF007bff),
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 13,
+                    ),
+                  ),
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      addData(context);
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           ],
-        )
-      ],
+        ),
+      ),
     );
   }
+
+  addData(BuildContext context) async {
+  final provider = Provider.of<UserController>(context, listen: false);
+  final user = DataModel(
+    name:provider. nameController.text,
+    age: int.parse(provider.ageController.text),
+    image: provider.uploadedImageUrl
+
+  );
+  await provider.addUser(user);
+}
 }

@@ -1,65 +1,90 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:totalx/model/data_model.dart';
 
-class DataService {
-   FirebaseFirestore firestore = FirebaseFirestore.instance;
-   FirebaseStorage storage = FirebaseStorage.instance;
+class UserService {
+  String collection = 'user';
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  late CollectionReference<DataModel> user;
+  // CollectionReference user = firestore.collection(collection);
 
-   Stream<QuerySnapshot> getUsers({
-    DocumentSnapshot? lastDocument,
-    int pageSize = 10
-   }){
-    Query query = firestore.collection('users_collection').orderBy('name').limit(pageSize);
+  Reference storage = FirebaseStorage.instance.ref();
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-    if(lastDocument != null){
-      query = query.startAfterDocument(lastDocument);
-    }
-    return query.snapshots();
-   }
+  String downloadUrl = "";
 
-
-   Future<String> uploadImage(File image)async{
-    try {
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference  reference = storage.ref().child('user_images/$fileName');
-
-      UploadTask uploadTask = reference.putFile(image);
-      TaskSnapshot  taskSnapshot = await uploadTask;
-      String downloadURL  = await taskSnapshot.ref.getDownloadURL();
-      return downloadURL;
-    }catch(e){
-      throw Exception('Error uploading image: $e');
-    }
-   }
-
-   Future<void> addUserList({
-    required String name,
-    required String age,
-    required File imageFile,
-   })async{
-    try {
-      String downloadURL = await uploadImage(imageFile);
-      DataModel user = DataModel(
-        name: name,
-        age: age,
-        image: downloadURL
-      );
-      await firestore.collection('users_collection').doc().set(user.toJson());
-    }catch(e){
-      throw Exception('Error adding user: $e');
-    }
-   }
-   
-  Future<void> deleteUserData(String documentId) async {
-  try {
-    await firestore.collection('users_collection').doc(documentId).delete();
-  } catch (e) {
-    throw Exception('Error deleting user: $e');
+  UserService() {
+    user = firestore.collection(collection).withConverter<DataModel>(
+      fromFirestore: (snapshot, options) {
+        return DataModel.fromJson(
+          snapshot.data()!,
+        );
+      },
+      toFirestore: (value, options) {
+        return value.toJson();
+      },
+    );
   }
-}
-   
-   
+
+  Future<void> adduser(DataModel data) async {
+    try {
+      final docRef = await user.add(data);
+      await docRef.update({'uid':docRef.id});
+      log("User added with ID : ${docRef.id}");
+       
+       
+    } catch (e) {
+      log('Error adding post :$e');
+    }
+  }
+
+  Future<List<DataModel>> getAllUsers() async {
+    try{
+    final snapshot = await user.get();
+    return snapshot.docs.map((doc) =>doc.data()).toList();
+  }catch(e){
+    log('Error fetching users :$e');
+    return [];
+  }
+  }
+
+  Future getImage({required source}) async {
+    try {
+      final picker = ImagePicker();
+      final pickedImage = await picker.pickImage(source: source);
+      if (pickedImage != null) {
+        return File(pickedImage.path);
+      } else {
+        log("no image  selected");
+      }
+    } catch (e) {
+      log('Error picking image: $e');
+    }
+  }
+
+  Future<String?> uploadImageToFirebase(File imageFile) async {
+    try {
+      String fileName = imageFile.path.split('/').last;
+      Reference storageReference = storage.child('uploads/$fileName');
+      UploadTask uploadTask = storageReference.putFile(imageFile);
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      log('Image uploaded: $downloadUrl');
+      return downloadUrl;
+    } catch (e) {
+      log('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  List<DataModel> sortUsersByAge(List<DataModel> users, bool isDescending) {
+    users.sort((a, b) =>
+        isDescending ? b.age!.compareTo(a.age!) : a.age!.compareTo(b.age!));
+    return users;
+  }
 }

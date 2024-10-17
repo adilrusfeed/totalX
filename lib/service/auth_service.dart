@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:totalx/model/user_model.dart';
 import 'package:totalx/view/login/otp_screen.dart';
 
-class AuthService {
+class AuthenticationService {
   FirebaseAuth authentication = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  signinWithPhone(
+ Future<void> signinWithPhone(
     {required String phoneNumber,
       required BuildContext context
     })async{
@@ -39,7 +39,7 @@ class AuthService {
       }
     }
 
-    verifyOtp({
+  Future<void>  verifyOtp({
       required String verificationId,
       required String otp,
       required String phone,

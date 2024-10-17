@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:totalx/service/auth_service.dart';
 
 class AuthenticationController  extends ChangeNotifier{
-  AuthService  authService = AuthService();
+  AuthenticationService  authService = AuthenticationService();
 
  Future<void> signinWithPhone({
     required String phoneNumber, required BuildContext context

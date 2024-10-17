@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(30)
                     ),
                     child: Center(
-                     child: Text("Continue",style: GoogleFonts.montserrat(fontSize: 18,fontWeight: FontWeight.w600
+                     child: Text("Continue",style: GoogleFonts.montserrat(fontSize: 18,fontWeight: FontWeight.w600,color: Colors.white
                       )) ),
                   ),
                 )

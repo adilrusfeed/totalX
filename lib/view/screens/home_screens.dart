@@ -1,152 +1,145 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:totalx/controller/home_controller.dart';
-import 'package:totalx/service/auth_service.dart';
-import 'package:totalx/view/widgets/floating_widget.dart';
 
-class HomeScreen extends StatefulWidget {
+import '../../controller/home_controller.dart';
+import '../widgets/add_dialog.dart';
+import '../widgets/sorting.dart';
+
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  TextEditingController searchController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController ageController = TextEditingController();
-  bool isLoadingMore = false;
-  final  ScrollController _scrollController = ScrollController();
-
-  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<UserController>(context, listen: false);
+    provider.getUsersAndSort("All");
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        title: Text("User Data"),centerTitle: true,
         backgroundColor: Colors.black,
-        title: Text(
-          "Nilambur",
-          style: GoogleFonts.montserrat(color: Colors.white),
-        ),
-        leading: Icon(
-          Icons.location_on,
-          color: Colors.white,
-        ),
-        actions: [
-          Padding(
-              padding: EdgeInsets.only(right: 10),
-              child: InkWell(
-                onTap: () {
-                  AuthService().signOut();
-                },
-                child: Icon(Icons.logout, color: Colors.white),
-              ))
-        ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-                padding: EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.search_sharp,
-                      color: Colors.grey,
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    hintText: "Search by Name",
-                    hintStyle: GoogleFonts.montserrat(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Search by name...',
+                        border: InputBorder.none,
+                        icon: Icon(Icons.search, color: Colors.grey),
+                      ),
+                      onChanged: (value) {
+                        provider.search(value);
+                      },
                     ),
                   ),
                 ),
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return SortingDialogue(
+                          currentSortOption: provider.selectedSortOption,
+                          onSelected: (sort) {
+                            provider.getUsersAndSort(sort);
+                          },
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.sort),
                 ),
-                
-                SizedBox(height: 20),
-                Text('Users Lists',style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17,
-                  color: Colors.grey[500])),
-                  SizedBox(height: 10),
-                  Expanded(child: Consumer<DataController>(builder: (context, homeController, child) {
-                    return RefreshIndicator(
-                       onRefresh: (){
-                      return  homeController.refreshUsers();
-                       },
-                      child: NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification notification) {
-                        if(
-                          notification is ScrollEndNotification && 
-                          notification.metrics.extentAfter == 0 && !homeController.isLoading && homeController.hasMore
-                        ){
-                          _loadMoreLists();
-                        }
-                        return false;
-                      },child: ListView.builder(
-                        controller:_scrollController,
-                        itemCount: homeController.filteredUsers.length + (isLoadingMore ? 1 : 0),
+              ],
+            ),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 5.0),
+                child: Text(
+                  'Users Lists',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Consumer<UserController>(
+                builder: (context, value, child) => value.isloading == true
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : ListView.builder(
+                        itemCount: value.searchlist.isEmpty
+                            ? value.allUsers.length
+                            : value.searchlist.length,
                         itemBuilder: (context, index) {
-                          if (index == homeController.filteredUsers.length) {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                          final user = homeController.filteredUsers[index];
+                          final user = value.searchlist.isEmpty
+                              ? value.allUsers[index]
+                              : value.searchlist[index];
                           return Card(
-                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
                             child: ListTile(
                               leading: CircleAvatar(
-                                radius: 35,
-                                backgroundImage: user.image != null ? NetworkImage(user.image!):const AssetImage("assets/person.png") as ImageProvider,
+                                radius: 30,
+                                backgroundImage: NetworkImage(
+                                    user.image != null ? user.image! : ""),
+                                child: user.image == null
+                                    ? const Icon(Icons.person)
+                                    : null,
                               ),
-                              title: Text(user.name ?? ''),
-                              subtitle: Text(user.age ?? ''),
+                              title: Text(
+                                user.name.toString(),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                "Age: ${user.age}",
+                              ),
                             ),
                           );
                         },
                       ),
-                    ),
-                  ); 
-                }
               ),
             ),
-          ]
-        )
+          ],
+        ),
       ),
-      floatingActionButton: FloatingWidget(
-        ageController: ageController,
-        nameController: nameController,
+      floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(),
+        onPressed: () {
+          showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (context) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: const AddUserWidget(),
+              );
+            },
+          );
+        },
+        backgroundColor: Colors.black,
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
-
-  } 
-
-
-
-  Future<void> _loadMoreLists()async{
-    final homeController = Provider.of<DataController>(context,listen: false);
-    if(!homeController.isLoadingMore && homeController.hasMore){
-      await homeController.loadMore();
-    }
   }
-
-    void _scrollingListen(){
-      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent){
-        _loadMoreLists();
-      }
-    }
-
-   @override
-   void dispose() {
-    // TODO: implement dispose
-    _scrollController.removeListener(_scrollingListen);
-    _scrollController.dispose();
-    super.dispose();
-  }       
 }
-    
