@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 17,
                   color: Colors.grey[500])),
                   SizedBox(height: 10),
-                  Expanded(child: Consumer<HomeController>(builder: (context, homeController, child) {
+                  Expanded(child: Consumer<DataController>(builder: (context, homeController, child) {
                     return RefreshIndicator(
                        onRefresh: (){
                       return  homeController.refreshUsers();
@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Future<void> _loadMoreLists()async{
-    final homeController = Provider.of<HomeController>(context,listen: false);
+    final homeController = Provider.of<DataController>(context,listen: false);
     if(!homeController.isLoadingMore && homeController.hasMore){
       await homeController.loadMore();
     }

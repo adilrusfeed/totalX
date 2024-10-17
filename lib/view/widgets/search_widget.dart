@@ -24,7 +24,7 @@ class SearchWidget extends StatelessWidget {
             child: TextFormField(
               controller: searchController,
               onChanged: (value) {
-                Provider.of<HomeController>(context, listen: false)
+                Provider.of<DataController>(context, listen: false)
                     .searchUsers(value);
               },
               decoration: InputDecoration(
@@ -41,7 +41,7 @@ class SearchWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Consumer<HomeController>(
+          Consumer<DataController>(
             builder: (context, homeController, child) {
               return PopupMenuButton<String>(
                 onSelected: (value) {

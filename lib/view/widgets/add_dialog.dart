@@ -13,7 +13,7 @@ class AddDialogBox extends StatelessWidget {
       required this.nameController,
       required this.homeProvid});
 
-  final HomeController homeProvid;
+  final DataController homeProvid;
   final TextEditingController nameController;
   final TextEditingController ageController;
 

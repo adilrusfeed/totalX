@@ -57,6 +57,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 20),
                 InkWell(
                   onTap: (){
+                    if(phoneController.text.isEmpty || !RegExp(r'^[0-9]{10}$').hasMatch(phoneController.text) ){
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please enter a valid 10-digit phone number")),
+                      );
+                      return ;
+                    }
                     controller.signinWithPhone(phoneNumber: '+91${phoneController.text}', context: context);
 
                   },

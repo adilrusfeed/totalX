@@ -11,10 +11,10 @@ PopupMenuItem<String> buildPopupMenuItem(String value, String text,BuildContext 
         children: [
           Radio<String>(
             value: value,
-            groupValue: Provider.of<HomeController>(context,listen: false).selectedFilter,
+            groupValue: Provider.of<DataController>(context,listen: false).selectedFilter,
             activeColor: Colors.blue,
             onChanged: (value) {
-              Provider.of<HomeController>(context, listen: false)
+              Provider.of<DataController>(context, listen: false)
                   .setFilter(value!);
             },
           ),

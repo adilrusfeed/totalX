@@ -1,13 +1,12 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:totalx/model/data_model.dart';
 import 'package:totalx/service/data_service.dart';
 
-class HomeController extends ChangeNotifier {
+class DataController extends ChangeNotifier {
   final imagePicker = ImagePicker();
   final DataService dataService = DataService();
 
@@ -21,7 +20,7 @@ class HomeController extends ChangeNotifier {
   bool hasMore = true;
   bool isLoadingMore = false;
 
-  HomeController() {
+  DataController() {
     fetchUsers();
   }
 
@@ -29,9 +28,9 @@ class HomeController extends ChangeNotifier {
     if (isLoading || !hasMore) return;
     isLoading = true;
     try {
-      final users = dataService.getUsers(
+      final usersStream = dataService.getUsers(
           lastDocument: isLoadMore ? lastGoc : null, pageSize: pageSize);
-      users.listen((snapshot) {
+      usersStream.listen((snapshot) {
         final users = snapshot.docs.map(
           (doc) {
             Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -104,9 +103,17 @@ class HomeController extends ChangeNotifier {
   notifyListeners();
   }
 
-  Future<void> deleteData() async {
+  Future<void> deleteData(
+    String documentId
+  ) async {
     try {
-      await dataService.deteleData();
+      await dataService.deleteUserData(
+       documentId
+      );
+        
+
+
+      
       refreshUsers();
       notifyListeners();
     } catch (e) {
