@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:totalx/controller/home_controller.dart';
-import 'package:totalx/service/auth_service.dart';
 import 'package:totalx/view/widgets/floating_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -38,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.only(right: 10),
               child: InkWell(
                 onTap: () {
-                  AuthService().signOut();
+                  // AuthService().signOut();
                 },
                 child: Icon(Icons.logout, color: Colors.white),
               ))

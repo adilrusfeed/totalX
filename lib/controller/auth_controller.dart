@@ -1,35 +1,14 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:totalx/service/auth_service.dart';
 
-class AuthController  extends ChangeNotifier{
-  AuthService  authService = AuthService();
+class AuthenticationController  extends ChangeNotifier{
+  AuthService authService = AuthService();
+  TextEditingController phoneController = TextEditingController();
 
-  signinWithPhone({
-    required String phoneNumber, required BuildContext context
-  })async{
-    try {
-      log(phoneNumber);
-      await authService.signinWithPhone(phoneNumber: phoneNumber, context: context);
-    } catch (e) {
-      throw Exception('Phone auth interrupted$e');
-    }
+  Future<void> getOtp(phoneNumber) async {
+    await authService.getOtp(phoneNumber);
     notifyListeners();
   }
-
-  verifyOtp(
-    {
-      required String verificationId,
-      required String otp,
-      required Function onSuccess,
-      required String phone}){
-        try{
-          authService.verifyOtp(verificationId: verificationId, otp: otp, phone: phone,onSuccess: onSuccess);
-        }catch(e){
-          throw Exception('Phone auth interrupted$e');
-        }
-        notifyListeners();
-      }
 
 }
