@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:totalx/view/login/otp_screen.dart';
-
-import '../../service/auth_service.dart';
+import 'package:totalx/controller/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           Center(
             child: Padding(padding: EdgeInsets.all(8),
-            child: Consumer<AuthService>(builder: (context, controller, child) =>
+            child: Consumer<AuthenticationController>(builder: (context, controller, child) =>
             Column(
               children: [
                 Container(
@@ -59,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 20),
                 InkWell(
                   onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => OtpScreen(),));
+                    controller.signinWithPhone(phoneNumber: '+91${phoneController.text}', context: context);
 
                   },
                   child: Container(

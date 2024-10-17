@@ -1,153 +1,114 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
-import 'dart:async';
+import 'package:google_fonts/google_fonts.dart';
+
+import 'package:pin_code_text_field/pin_code_text_field.dart';
+import 'package:provider/provider.dart';
+import 'package:totalx/controller/auth_controller.dart';
 import 'package:totalx/view/screens/home_screens.dart';
 
+// ignore: must_be_immutable
+class OtpScreen extends StatelessWidget {
+  String verificationId;
+  String phoneNumber;
+  OtpScreen(
+      {super.key, required this.verificationId, required this.phoneNumber});
 
-class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key});
-
-  @override
-  _OtpScreenState createState() => _OtpScreenState();
-}
-
-class _OtpScreenState extends State<OtpScreen> {
   TextEditingController otpController = TextEditingController();
-  int secondsRemaining = 60;
-  bool enableResend = false;
-  Timer? timer;
-
-  @override
-  void initState() {
-    super.initState();
-    startTimer();
-  }
-
-  @override
-  void dispose() {
-    otpController.dispose();
-    timer?.cancel();
-    super.dispose();
-  }
-
-  void startTimer() {
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (secondsRemaining > 0) {
-        setState(() {
-          secondsRemaining--;
-        });
-      } else {
-        setState(() {
-          enableResend = true;
-        });
-        timer.cancel();
-      }
-    });
-  }
-
-  void resendOTP() {
-    setState(() {
-      secondsRemaining = 59;
-      enableResend = false;
-    });
-    startTimer();
-  }
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              "assets/otp.jpg",
-              height: 150,
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              'OTP Verification',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Enter the verification code we just sent to your number +91 ******21.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.black54),
-            ),
-            const SizedBox(height: 20),
-            PinCodeTextField(
-              appContext: context,
-              length: 6,
-              controller: otpController,
-              keyboardType: TextInputType.number,
-              onChanged: (value) {},
-              pinTheme: PinTheme(
-                shape: PinCodeFieldShape.box,
-                borderRadius: BorderRadius.circular(5),
-                fieldHeight: 50,
-                fieldWidth: 40,
-                activeColor: Colors.blue,
-                inactiveColor: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              secondsRemaining > 0
-                  ? '00:${secondsRemaining.toString().padLeft(2, '0')} Sec'
-                  : '',
-              style: const TextStyle(color: Colors.red, fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Don't get OTP?"),
-                TextButton(
-                  onPressed: enableResend ? resendOTP : null,
-                  child: Text(
-                    'Resend',
-                    style: TextStyle(
-                      color: enableResend ? Colors.blue : Colors.grey,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Center(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Container(
+                    height: size.height * 0.23,
+                    width: size.width * 0.36,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage("assets/otp verify.jpg"))),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "OTP  Verification",
+                      style: GoogleFonts.montserrat(
+                          fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>  HomeScreen(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                  SizedBox(
+                    height: 20,
                   ),
-                ),
-                child: const Text(
-                  'Verify',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
+                  Text('Enter the verification code sent to your number '),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Center(
+                    child: PinCodeTextField(
+                      controller: otpController,
+                      pinTextStyle: TextStyle(fontSize: 17, color: Colors.red),
+                      maxLength: 6,
+                      pinBoxHeight: size.height * 0.13,
+                      pinBoxWidth: size.width * 0.08,
+                      pinBoxRadius: 10,
+                      pinBoxColor: Colors.white.withOpacity(0.5),
+                      highlightColor: Colors.red,
+                      defaultBorderColor: Colors.grey,
+                      onDone: (value) {},
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  InkWell(
+                    onTap: () {
+                      verifyOtp(context, otpController.text, phoneNumber);
+                    },
+                    child: Container(
+                      height: 60,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Verify',
+                          style: GoogleFonts.montserrat(
+                              color: Colors.white, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text('Resend OTP')
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-          ],
-        ),
+          )
+        ],
       ),
     );
+  }
+
+  void verifyOtp(context, String userOtp, String phoneNumber) {
+    final authProvid = Provider.of<AuthenticationController>(context, listen: false);
+    authProvid.verifyOtp(
+        verificationId: verificationId,
+        otp: userOtp,
+        onSuccess: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(),
+              ));
+        },
+        phone: phoneNumber);
   }
 }
