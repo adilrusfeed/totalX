@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:totalx/controller/auth_controller.dart';
+import 'package:totalx/view/screens/home_screens.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -63,7 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       );
                       return ;
                     }
-                    controller.signinWithPhone(phoneNumber: '+91${phoneController.text}', context: context);
+                    // controller.signinWithPhone(phoneNumber: '+91${phoneController.text}', context: context);
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen(),));
 
                   },
                   child: Container(

@@ -16,7 +16,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("User Data",
         style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),),centerTitle: true,
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 5,
                 shadowColor: Colors.grey[800],
 
