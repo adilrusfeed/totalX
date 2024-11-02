@@ -16,6 +16,7 @@ class _AddUserWidgetState extends State<AddUserWidget> {
   final formKey = GlobalKey<FormState>();
   final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _ageFocusNode = FocusNode();
+  String? imageError;
 
   @override
   void dispose() {
@@ -37,7 +38,16 @@ class _AddUserWidgetState extends State<AddUserWidget> {
             children: [
               Consumer<UserController>(
                 builder: (context, value, child) => GestureDetector(
-                  onTap: () => value.pickImageFromGallery(),
+                  onTap: () async{
+                    value.pickImageFromGallery(); 
+                    setState(() {
+                    imageError = value.pickedImage == null
+                     ? "Please select an image"
+                    : null;
+                    });
+                  } ,
+                  
+                  
                   child: CircleAvatar(
                     radius: 50,
                     backgroundImage: value.pickedImage != null
@@ -50,6 +60,10 @@ class _AddUserWidgetState extends State<AddUserWidget> {
                   ),
                 ),
               ),
+              if(imageError != null)
+              Padding(padding: EdgeInsets.only(top: 8),
+              child: Text(imageError!,style: TextStyle(color: Colors.red),),),
+
               const SizedBox(height: 8),
               const Text(
                 'Add A New User',
@@ -131,6 +145,12 @@ class _AddUserWidgetState extends State<AddUserWidget> {
                       ),
                     ),
                     onPressed: () {
+                      if (provider.pickedImage == null) {
+                        setState(() {
+                          imageError = "Please select an image";
+                        });
+                        return;
+                      }
                       if (formKey.currentState!.validate()) {
                         addData(context);
                         Navigator.pop(context);

@@ -45,18 +45,31 @@ class UserController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getProduct() async {
-    isloading = true;
-    notifyListeners();
-    try {
-      allUsers = await userService.getAllUsers();
-      searchlist = allUsers;
-    } catch (e) {
-      log("Error fetching users: $e");
+    Future<void> getUsersAndSort(String sortOption) async {
+    allUsers = await userService.getAllUsers();
+    if (sortOption == 'Elder') {
+      allUsers = userService.sortUsersByAge(allUsers, true);
+    } else if (sortOption == 'Younger') {
+      allUsers = userService.sortUsersByAge(allUsers, false);
     }
-    isloading = false;
+    searchlist = allUsers;
+    selectedSortOption = sortOption;
+
     notifyListeners();
   }
+
+  // Future<void> getProduct() async {
+  //   isloading = true;
+  //   notifyListeners();
+  //   try {
+  //     allUsers = await userService.getAllUsers();
+  //     searchlist = allUsers;
+  //   } catch (e) {
+  //     log("Error fetching users: $e");
+  //   }
+  //   isloading = false;
+  //   notifyListeners();
+  // }
 
   
   Future<String?> uploadImage() async {
@@ -117,17 +130,4 @@ class UserController extends ChangeNotifier {
     uploadedImageUrl = null;
     notifyListeners();
   }
-
-  Future<void> getUsersAndSort(String sortOption) async {
-    allUsers = await userService.getAllUsers();
-    if (sortOption == 'Elder') {
-      allUsers = userService.sortUsersByAge(allUsers, true);
-    } else if (sortOption == 'Younger') {
-      allUsers = userService.sortUsersByAge(allUsers, false);
-    }
-    searchlist = allUsers;
-    selectedSortOption = sortOption;
-
-    notifyListeners();
   }
-}
